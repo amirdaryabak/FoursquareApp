@@ -1,0 +1,15 @@
+package com.amirdaryabak.foursquareapp.models
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.io.Serializable
+
+@Entity(
+    tableName = "venues"
+)
+data class Venue(
+    @PrimaryKey
+    val id: String,
+//    val location: Location,
+    val name: String
+) : Serializable
