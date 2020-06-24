@@ -11,5 +11,6 @@ data class Venue(
     @PrimaryKey
     val id: String,
 //    val location: Location,
-    val name: String
+    val name: String,
+    val rating: Int
 ) : Serializable

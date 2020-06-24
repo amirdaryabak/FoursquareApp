@@ -23,6 +23,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -58,4 +66,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
     implementation "com.squareup.okhttp3:logging-interceptor:4.5.0"
 
+    // Toasty
+    implementation 'com.github.GrenderG:Toasty:1.4.2'
+
+    implementation 'com.foursquare:pilgrimsdk:2.4.2'
 }
