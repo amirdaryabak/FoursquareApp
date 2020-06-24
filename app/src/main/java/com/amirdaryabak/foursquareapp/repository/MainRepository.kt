@@ -9,7 +9,7 @@ class MainRepository(
     suspend fun getVenuesByLatAndLng(latitudeAndLongitude: String) =
         RetrofitInstance.api.getVenuesByLatAndLng(latitudeAndLongitude)
 
-    suspend fun getVenuesById(venueID: String) =
-        RetrofitInstance.api.getVenuesById(venueID)
+    suspend fun getVenuesDetailById(venueID: String) =
+        RetrofitInstance.api.getVenuesDetailById(venueID)
 
 }

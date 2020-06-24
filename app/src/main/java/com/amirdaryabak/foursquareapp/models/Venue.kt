@@ -11,7 +11,6 @@ import java.io.Serializable
 data class Venue(
     @PrimaryKey
     val id: String,
-    @Embedded(prefix = "location")
     val location: Location,
     val name: String
 ) : Serializable

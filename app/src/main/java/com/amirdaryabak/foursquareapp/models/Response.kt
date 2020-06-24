@@ -1,11 +1,10 @@
 package com.amirdaryabak.foursquareapp.models
 
+import com.google.gson.annotations.SerializedName
+
 data class Response(
     val groups: List<Group>,
-    val headerFullLocation: String,
-    val headerLocation: String,
-    val headerLocationGranularity: String,
-    val suggestedRadius: Int,
     val totalResults: Int,
-    val warning: Warning
+    @SerializedName("venue")
+    val venue: Venue
 )

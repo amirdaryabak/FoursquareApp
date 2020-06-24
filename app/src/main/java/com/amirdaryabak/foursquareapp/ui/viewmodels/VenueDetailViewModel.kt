@@ -1,4 +1,4 @@
-package com.amirdaryabak.foursquareapp.ui
+package com.amirdaryabak.foursquareapp.ui.viewmodels
 
 import android.app.Application
 import android.content.Context
@@ -16,38 +16,38 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
 
-class MainViewModel(
+class VenueDetailViewModel(
     app: Application,
     val mainRepository: MainRepository
 ) : AndroidViewModel(app) {
 
-    val venues: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
+    val venue: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
     var venuesResponse: MainResponse? = null
 
-    fun getBreakingNews(latitudeAndLongitude: String) = viewModelScope.launch {
-        getVenuesByLatAndLng(latitudeAndLongitude)
+    fun getVenuesDetailById(venueID: String) = viewModelScope.launch {
+        getSafeVenuesDetail(venueID)
     }
 
-    private suspend fun getVenuesByLatAndLng(latitudeAndLongitude: String) {
-        venues.postValue(Resource.Loading())
+    private suspend fun getSafeVenuesDetail(venueID: String) {
+        venue.postValue(Resource.Loading())
         try {
             if (hasInternetConnection()) {
-                val response = mainRepository.getVenuesByLatAndLng(latitudeAndLongitude)
-                venues.postValue(handleVenuesByLatAndLngResponse(response))
+                val response = mainRepository.getVenuesDetailById(venueID)
+                venue.postValue(handleVenuesDetailByIdResponse(response))
             } else {
-                venues.postValue((Resource.Error("Not internet connection")))
+                venue.postValue((Resource.Error("Not internet connection")))
             }
 
         } catch (t: Throwable) {
             when(t) {
-                is IOException -> venues.postValue((Resource.Error("Network Failure")))
-                else -> venues.postValue(Resource.Error("Connection Error"))
+                is IOException -> venue.postValue((Resource.Error("Network Failure")))
+                else -> venue.postValue(Resource.Error("Connection Error"))
             }
         }
     }
 
 
-    private fun handleVenuesByLatAndLngResponse(response: Response<MainResponse>) : Resource<MainResponse> {
+    private fun handleVenuesDetailByIdResponse(response: Response<MainResponse>) : Resource<MainResponse> {
         if (response.isSuccessful) {
             response.body()?.let {resultResponse ->
                 venuesResponse = resultResponse

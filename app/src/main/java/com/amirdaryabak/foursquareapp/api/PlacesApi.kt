@@ -19,7 +19,10 @@ interface PlacesApi {
     ): Response<MainResponse>
 
     @GET("venues/{VENUE_ID}")
-    suspend fun getVenuesById(
-        @Path("VENUE_ID") venueID: String
+    suspend fun getVenuesDetailById(
+        @Path("VENUE_ID") venueID: String = "49eeaf08f964a52078681fe3",
+        @Query("client_id") client_id: String = CLIENT_ID,
+        @Query("client_secret") client_secret: String = CLIENT_SECRET,
+        @Query("v") v: String = "20200909"
     ): Response<MainResponse>
 }

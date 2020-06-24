@@ -1,5 +1,6 @@
 package com.amirdaryabak.foursquareapp.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import com.amirdaryabak.foursquareapp.adapters.PlacesAdapter
 import com.amirdaryabak.foursquareapp.db.PlacesDaoDataBase
 import com.amirdaryabak.foursquareapp.models.Venue
 import com.amirdaryabak.foursquareapp.repository.MainRepository
+import com.amirdaryabak.foursquareapp.ui.viewmodels.MainViewModel
 import com.amirdaryabak.foursquareapp.util.Resource
 import com.androiddevs.mvvmnewsapp.ui.MainViewModelProviderFactory
 import es.dmoral.toasty.Toasty
@@ -49,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                         for (i in response.response.groups) {
                             for (j in i.items) {
                                 venuesArrayList.add(j.venue)
-                                Log.d(TAG, "Venues : ${j.venue.location.address}")
+                                Log.d(TAG, "Venues : ${j.venue.id}")
 
                             }
                         }
@@ -78,6 +80,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpRecyclerView() {
         newsAdapter = PlacesAdapter()
+        newsAdapter.setOnItemClickListener {item->
+            intent = Intent(this,VenueDetailActivity::class.java)
+            intent.putExtra("id", item.id)
+            startActivity(intent)
+        }
         newsAdapter.differ.submitList(venuesArrayList)
         rvPlaces.apply {
             adapter = newsAdapter
