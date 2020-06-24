@@ -1,5 +1,6 @@
 package com.amirdaryabak.foursquareapp.models
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
@@ -10,7 +11,7 @@ import java.io.Serializable
 data class Venue(
     @PrimaryKey
     val id: String,
-//    val location: Location,
-    val name: String,
-    val rating: Int
+    @Embedded(prefix = "location")
+    val location: Location,
+    val name: String
 ) : Serializable

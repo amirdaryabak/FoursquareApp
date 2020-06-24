@@ -2,7 +2,11 @@ package com.amirdaryabak.foursquareapp.ui
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -14,6 +18,7 @@ import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.util.Resource
 import com.androiddevs.mvvmnewsapp.ui.MainViewModelProviderFactory
 import es.dmoral.toasty.Toasty
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,8 +33,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        requestLocationPermission(this,1)
-
+        button.setOnClickListener {
+            startActivity(Intent(this, SplashActivity::class.java))
+        }
 
 
         val mainRepository = MainRepository(PlacesDaoDataBase(this))
@@ -42,8 +48,13 @@ class MainActivity : AppCompatActivity() {
             when (response) {
                 is Resource.Success -> {
 //                    loading.dismiss()
-                    response.data?.let { loginResponse ->
+                    response.data?.let { response ->
                         Toasty.success(this, "Yeah").show()
+                        for (i in response.response.groups) {
+                            for (j in i.items) {
+                                Log.d(TAG, "Venues : ${j.venue.location.address}")
+                            }
+                        }
 //                        loginResponse.result.id = 1
 //                        viewModel.saveLogin(loginResponse.result)
 //                        viewModel.getSupporterDetails(loginResponse.result.access_token)
@@ -64,10 +75,5 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-    private fun requestLocationPermission(activity: Activity?, requestCode: Int) {
-        ActivityCompat.requestPermissions(
-            activity!!, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            requestCode
-        )
-    }
+
 }

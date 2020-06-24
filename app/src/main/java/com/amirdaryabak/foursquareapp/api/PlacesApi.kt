@@ -12,9 +12,10 @@ interface PlacesApi {
 
     @GET("venues/explore")
     suspend fun getVenuesByLatAndLng(
-        @Query("ll") latitudeAndLongitude: String,
+        @Query("ll") ll: String = "35.6002487,51.4189481",
         @Query("client_id") client_id: String = CLIENT_ID,
-        @Query("client_id") client_secret: String = CLIENT_SECRET
+        @Query("client_secret") client_secret: String = CLIENT_SECRET,
+        @Query("v") v: String = "20200909"
     ): Response<MainResponse>
 
     @GET("venues/{VENUE_ID}")
