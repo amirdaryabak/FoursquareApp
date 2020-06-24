@@ -1,19 +1,15 @@
 package com.amirdaryabak.foursquareapp.ui
 
-import android.Manifest
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.amirdaryabak.foursquareapp.R
+import com.amirdaryabak.foursquareapp.adapters.PlacesAdapter
 import com.amirdaryabak.foursquareapp.db.PlacesDaoDataBase
+import com.amirdaryabak.foursquareapp.models.Venue
 import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.util.Resource
 import com.androiddevs.mvvmnewsapp.ui.MainViewModelProviderFactory
@@ -25,6 +21,9 @@ class MainActivity : AppCompatActivity() {
 
 
     lateinit var viewModel: MainViewModel
+    lateinit var newsAdapter: PlacesAdapter
+    var venuesArrayList: MutableList<Venue> = ArrayList()
+
 
     val TAG = "MainActivity"
 
@@ -33,9 +32,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        button.setOnClickListener {
-            startActivity(Intent(this, SplashActivity::class.java))
-        }
 
 
         val mainRepository = MainRepository(PlacesDaoDataBase(this))
@@ -52,9 +48,13 @@ class MainActivity : AppCompatActivity() {
                         Toasty.success(this, "Yeah").show()
                         for (i in response.response.groups) {
                             for (j in i.items) {
+                                venuesArrayList.add(j.venue)
                                 Log.d(TAG, "Venues : ${j.venue.location.address}")
+
                             }
                         }
+
+                        setUpRecyclerView()
 //                        loginResponse.result.id = 1
 //                        viewModel.saveLogin(loginResponse.result)
 //                        viewModel.getSupporterDetails(loginResponse.result.access_token)
@@ -74,6 +74,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun setUpRecyclerView() {
+        newsAdapter = PlacesAdapter()
+        newsAdapter.differ.submitList(venuesArrayList)
+        rvPlaces.apply {
+            adapter = newsAdapter
+            layoutManager = LinearLayoutManager(this@MainActivity)
+        }
     }
 
 }
