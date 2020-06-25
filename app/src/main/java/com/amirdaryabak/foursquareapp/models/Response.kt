@@ -6,5 +6,5 @@ data class Response(
     val groups: List<Group>,
     val totalResults: Int,
     @SerializedName("venue")
-    val venue: Venue
+    val venue: VenueForDetail
 )

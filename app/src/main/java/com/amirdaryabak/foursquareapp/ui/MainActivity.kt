@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                         for (i in response.response.groups) {
                             for (j in i.items) {
                                 venuesArrayList.add(j.venue)
-                                val venue = Venue(j.venue.id,j.venue.name,"url")
+                                val venue = Venue(j.venue.id,j.venue.name)
                                 viewModel.insertVenue(venue)
                                 Log.d(TAG, "Venues : ${j.venue.id}")
                             }
