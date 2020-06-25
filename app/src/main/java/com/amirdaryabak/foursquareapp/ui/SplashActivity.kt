@@ -54,7 +54,8 @@ class SplashActivity : AppCompatActivity() {
                         Log.d(TAG, location.latitude.toString())
                         Log.d(TAG, location.longitude.toString())
                         if (savedLatitude != null && savedLatitude != "0" && savedLongitude != null && savedLongitude != "0"){
-                            if (getDistance(location.latitude,location.longitude, savedLatitude.toDouble(), savedLongitude.toDouble()) > 100) {
+                            if (getDistance(location.latitude, location.longitude, savedLatitude.toDouble(),
+                                    savedLongitude.toDouble()).toInt() > 100) {
                                 saveLatitudeAndLongitude(location.latitude.toString(), location.longitude.toString())
 
                                 val intent = Intent(this@SplashActivity,MainActivity::class.java)
@@ -97,9 +98,7 @@ class SplashActivity : AppCompatActivity() {
         mLocationRequest.numUpdates = 1
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        mFusedLocationClient.requestLocationUpdates(
-            mLocationRequest, mLocationCallback,
-            Looper.myLooper()
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper()
         )
     }
 
@@ -108,6 +107,7 @@ class SplashActivity : AppCompatActivity() {
             val mLastLocation: Location = locationResult.lastLocation
             Log.d(TAG, mLastLocation.latitude.toString())
             Log.d(TAG, mLastLocation.longitude.toString())
+            saveLatitudeAndLongitude(mLastLocation.latitude.toString(), mLastLocation.longitude.toString())
             val intent = Intent(this@SplashActivity,MainActivity::class.java)
             intent.putExtra("needToRefresh", true)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -138,8 +138,8 @@ class SplashActivity : AppCompatActivity() {
         dist = acos(dist)
         dist = rad2deg(dist)
         dist *= 60 * 1.1515
-        Log.d("TAG","Distance in meter : ${(dist * 1000 * 1000)}")
-        return dist * 1000 * 1000
+        Log.d("TAG","Distance in meter : ${(dist * 1000 * 1000).toInt()}")
+        return dist * 1000
     }
 
     private fun deg2rad(deg: Double): Double {

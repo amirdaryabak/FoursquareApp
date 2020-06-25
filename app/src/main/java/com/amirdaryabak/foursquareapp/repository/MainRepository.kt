@@ -17,4 +17,6 @@ class MainRepository(
 
     fun getAllVenues() = db.getPlacesDao().getAllVenues()
 
+    suspend fun deleteAllVenues() = db.getPlacesDao().deleteAllVenues()
+
 }

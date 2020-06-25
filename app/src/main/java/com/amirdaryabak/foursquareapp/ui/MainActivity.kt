@@ -1,5 +1,6 @@
 package com.amirdaryabak.foursquareapp.ui
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.amirdaryabak.foursquareapp.models.Venue
 import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.ui.viewmodels.MainViewModel
 import com.amirdaryabak.foursquareapp.util.Resource
+import com.amirdaryabak.foursquareapp.util.showLoading
 import com.androiddevs.mvvmnewsapp.ui.MainViewModelProviderFactory
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_main.*
@@ -26,12 +28,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModel: MainViewModel
     lateinit var newsAdapter: PlacesAdapter
     var venuesArrayList: MutableList<Venue> = ArrayList()
+    lateinit var loading: Dialog
 
     private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        loading = showLoading(this)
 
         val mainRepository = MainRepository(PlacesDaoDataBase(this))
         val viewModelProviderFactory = MainViewModelProviderFactory(application, mainRepository)
@@ -43,9 +48,13 @@ class MainActivity : AppCompatActivity() {
         if (intent.getBooleanExtra("needToRefresh", true)) {
             viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
         } else {
-            /*viewModel.getAllVenues().observe(this, Observer {
-                setUpRecyclerView(it)
-            })*/
+            viewModel.getAllVenues().observe(this, Observer {
+                if (it.isNotEmpty()){
+                    setUpRecyclerView(it)
+                } else {
+                    viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
+                }
+            })
         }
 
 
@@ -53,10 +62,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.venues.observe(this, Observer {response ->
             when (response) {
                 is Resource.Success -> {
-//                    loading.dismiss()
+                    loading.dismiss()
                     response.data?.let { response ->
                         Toasty.success(this, "Yeah").show()
                         Log.d(TAG, "TotalResult : ${response.response.totalResults}")
+                        viewModel.deleteAllVenues()
                         for (i in response.response.groups) {
                             for (j in i.items) {
                                 venuesArrayList.add(j.venue)
@@ -69,19 +79,22 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 is Resource.Error -> {
-//                    loading.dismiss()
-                    Toasty.error(this, "Yeah").show()
-                    /*viewModel.getAllVenues().observe(this, Observer {
-                        setUpRecyclerView(it)
-                    })*/
+                    loading.dismiss()
+                    Toasty.error(this, "No").show()
+                    viewModel.getAllVenues().observe(this, Observer {
+                        if (it.isNotEmpty()){
+                            setUpRecyclerView(it)
+                        } else {
+                            Toasty.error(this, "For the first time you need to connect internet").show()
+                        }
+                    })
                     response.message?.let { message ->
                         Log.e(TAG, "Error : $message")
                     }
                 }
                 is Resource.Loading -> {
                     Toasty.normal(this, "Loading").show()
-//                    loading = showLoading(this)
-//                    loading.show()
+                    loading.show()
                 }
             }
         })

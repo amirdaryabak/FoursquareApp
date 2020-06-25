@@ -31,6 +31,10 @@ class MainViewModel(
 
     fun getAllVenues() = mainRepository.getAllVenues()
 
+    fun deleteAllVenues() = viewModelScope.launch {
+        mainRepository.deleteAllVenues()
+    }
+
     fun getSafeVenuesByLatAndLng(latitudeAndLongitude: String) = viewModelScope.launch {
         getVenuesByLatAndLng(latitudeAndLongitude)
     }

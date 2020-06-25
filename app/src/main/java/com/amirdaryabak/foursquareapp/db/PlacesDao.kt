@@ -1,8 +1,10 @@
 package com.amirdaryabak.foursquareapp.db
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
-import com.amirdaryabak.foursquareapp.models.Item
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.amirdaryabak.foursquareapp.models.Venue
 
 @Dao
@@ -13,4 +15,7 @@ interface PlacesDao {
 
     @Query("SELECT * FROM venues")
     fun getAllVenues(): LiveData<List<Venue>>
+
+    @Query("DELETE FROM venues")
+    suspend fun deleteAllVenues()
 }
