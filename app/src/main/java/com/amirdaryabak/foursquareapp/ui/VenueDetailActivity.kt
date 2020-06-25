@@ -56,7 +56,7 @@ class VenueDetailActivity : AppCompatActivity() {
                 }
                 is Resource.Error -> {
                     loading.dismiss()
-                    Toasty.error(this, "Yeah").show()
+                    Toasty.error(this, "Need Internet connection").show()
                     response.message?.let { message ->
                         Log.e(TAG, "Error : $message")
                     }

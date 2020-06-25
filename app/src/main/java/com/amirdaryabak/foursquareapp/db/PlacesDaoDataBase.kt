@@ -11,7 +11,6 @@ import com.amirdaryabak.foursquareapp.models.Venue
     entities = [Venue::class],
     version = 1
 )
-@TypeConverters(Converters::class)
 abstract class PlacesDaoDataBase : RoomDatabase(){
 
     abstract fun getPlacesDao(): PlacesDao

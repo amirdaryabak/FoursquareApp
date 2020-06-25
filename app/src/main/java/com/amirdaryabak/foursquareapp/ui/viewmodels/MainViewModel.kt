@@ -25,20 +25,10 @@ class MainViewModel(
     val venues: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
     var venuesResponse: MainResponse? = null
 
-    fun insertVenue(venue: Venue) = viewModelScope.launch {
-        mainRepository.insertVenue(venue)
-    }
-
-    fun getAllVenues() = mainRepository.getAllVenues()
-
-    fun deleteAllVenues() = viewModelScope.launch {
-        mainRepository.deleteAllVenues()
-    }
-
+    // api
     fun getSafeVenuesByLatAndLng(latitudeAndLongitude: String) = viewModelScope.launch {
         getVenuesByLatAndLng(latitudeAndLongitude)
     }
-
 
     private suspend fun getVenuesByLatAndLng(latitudeAndLongitude: String) {
         venues.postValue(Resource.Loading())
@@ -58,7 +48,6 @@ class MainViewModel(
         }
     }
 
-
     private fun handleVenuesByLatAndLngResponse(response: Response<MainResponse>) : Resource<MainResponse> {
         if (response.isSuccessful) {
             response.body()?.let {resultResponse ->
@@ -67,6 +56,17 @@ class MainViewModel(
             }
         }
         return Resource.Error(response.message())
+    }
+
+    // db
+    fun insertVenue(venue: Venue) = viewModelScope.launch {
+        mainRepository.insertVenue(venue)
+    }
+
+    fun getAllVenues() = mainRepository.getAllVenues()
+
+    fun deleteAllVenues() = viewModelScope.launch {
+        mainRepository.deleteAllVenues()
     }
 
     private fun hasInternetConnection(): Boolean {

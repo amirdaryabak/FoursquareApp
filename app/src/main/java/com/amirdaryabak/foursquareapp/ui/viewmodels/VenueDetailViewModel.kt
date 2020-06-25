@@ -25,6 +25,7 @@ class VenueDetailViewModel(
     val venue: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
     var venuesResponse: MainResponse? = null
 
+    // api
     fun getVenuesDetailById(venueID: String) = viewModelScope.launch {
         getSafeVenuesDetail(venueID)
     }
@@ -46,7 +47,6 @@ class VenueDetailViewModel(
             }
         }
     }
-
 
     private fun handleVenuesDetailByIdResponse(response: Response<MainResponse>) : Resource<MainResponse> {
         if (response.isSuccessful) {

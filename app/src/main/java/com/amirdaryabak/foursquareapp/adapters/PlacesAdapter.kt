@@ -10,9 +10,9 @@ import com.amirdaryabak.foursquareapp.R
 import com.amirdaryabak.foursquareapp.models.Venue
 import kotlinx.android.synthetic.main.places_item.view.*
 
-class PlacesAdapter : RecyclerView.Adapter<PlacesAdapter.ArticleViewHolder>() {
+class PlacesAdapter : RecyclerView.Adapter<PlacesAdapter.PlacesViewHolder>() {
 
-    inner class ArticleViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
+    inner class PlacesViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     private val differCallback = object : DiffUtil.ItemCallback<Venue>() {
         override fun areItemsTheSame(oldItem: Venue, newItem: Venue): Boolean {
@@ -26,8 +26,8 @@ class PlacesAdapter : RecyclerView.Adapter<PlacesAdapter.ArticleViewHolder>() {
 
     val differ = AsyncListDiffer(this, differCallback)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
-        return ArticleViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlacesViewHolder {
+        return PlacesViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.places_item,
                 parent,
@@ -40,11 +40,11 @@ class PlacesAdapter : RecyclerView.Adapter<PlacesAdapter.ArticleViewHolder>() {
         return differ.currentList.size
     }
 
-    override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PlacesViewHolder, position: Int) {
         val currentVenue = differ.currentList[position]
         holder.itemView.apply {
             place_name.text = currentVenue.name
-//            place_address.text = currentVenue.location.address
+            place_address.text = currentVenue.location?.address ?: "(empty)"
             setOnClickListener {
                 onItemClickListener?.let { it(currentVenue) }
             }

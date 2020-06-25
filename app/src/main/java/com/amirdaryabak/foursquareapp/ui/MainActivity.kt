@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -70,8 +71,7 @@ class MainActivity : AppCompatActivity() {
                         for (i in response.response.groups) {
                             for (j in i.items) {
                                 venuesArrayList.add(j.venue)
-                                val venue = Venue(j.venue.id,j.venue.name)
-                                viewModel.insertVenue(venue)
+                                viewModel.insertVenue(j.venue)
                                 Log.d(TAG, "Venues : ${j.venue.id}")
                             }
                         }
@@ -80,12 +80,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 is Resource.Error -> {
                     loading.dismiss()
-                    Toasty.error(this, "No").show()
                     viewModel.getAllVenues().observe(this, Observer {
                         if (it.isNotEmpty()){
                             setUpRecyclerView(it)
                         } else {
-                            Toasty.error(this, "For the first time you need to connect internet").show()
+                            Toasty.error(this, "For the first time you need to connect to internet").show()
+                            onFailure_tv.visibility = View.VISIBLE
                         }
                     })
                     response.message?.let { message ->
