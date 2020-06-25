@@ -9,7 +9,7 @@ import com.amirdaryabak.foursquareapp.models.Venue
 interface PlacesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(venue: Venue): Long
+    suspend fun insertVenue(venue: Venue): Long
 
     @Query("SELECT * FROM venues")
     fun getAllVenues(): LiveData<List<Venue>>

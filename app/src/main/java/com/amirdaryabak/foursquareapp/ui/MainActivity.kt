@@ -1,5 +1,6 @@
 package com.amirdaryabak.foursquareapp.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -26,21 +27,28 @@ class MainActivity : AppCompatActivity() {
     lateinit var newsAdapter: PlacesAdapter
     var venuesArrayList: MutableList<Venue> = ArrayList()
 
-
-    val TAG = "MainActivity"
-
+    private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-
         val mainRepository = MainRepository(PlacesDaoDataBase(this))
         val viewModelProviderFactory = MainViewModelProviderFactory(application, mainRepository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(MainViewModel::class.java)
 
-        viewModel.getBreakingNews("40.742185,-74.047285")
+        val savedLatitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("latitude","0")
+        val savedLongitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("longitude","0")
+
+        if (intent.getBooleanExtra("needToRefresh", true)) {
+            viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
+        } else {
+            /*viewModel.getAllVenues().observe(this, Observer {
+                setUpRecyclerView(it)
+            })*/
+        }
+
+
 
         viewModel.venues.observe(this, Observer {response ->
             when (response) {
@@ -48,23 +56,24 @@ class MainActivity : AppCompatActivity() {
 //                    loading.dismiss()
                     response.data?.let { response ->
                         Toasty.success(this, "Yeah").show()
+                        Log.d(TAG, "TotalResult : ${response.response.totalResults}")
                         for (i in response.response.groups) {
                             for (j in i.items) {
                                 venuesArrayList.add(j.venue)
+                                val venue = Venue(j.venue.id,j.venue.name,"url")
+                                viewModel.insertVenue(venue)
                                 Log.d(TAG, "Venues : ${j.venue.id}")
-
                             }
                         }
-
-                        setUpRecyclerView()
-//                        loginResponse.result.id = 1
-//                        viewModel.saveLogin(loginResponse.result)
-//                        viewModel.getSupporterDetails(loginResponse.result.access_token)
+                        setUpRecyclerView(venuesArrayList)
                     }
                 }
                 is Resource.Error -> {
 //                    loading.dismiss()
                     Toasty.error(this, "Yeah").show()
+                    /*viewModel.getAllVenues().observe(this, Observer {
+                        setUpRecyclerView(it)
+                    })*/
                     response.message?.let { message ->
                         Log.e(TAG, "Error : $message")
                     }
@@ -78,14 +87,14 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun setUpRecyclerView() {
+    private fun setUpRecyclerView(venueList: List<Venue>) {
         newsAdapter = PlacesAdapter()
         newsAdapter.setOnItemClickListener {item->
             intent = Intent(this,VenueDetailActivity::class.java)
             intent.putExtra("id", item.id)
             startActivity(intent)
         }
-        newsAdapter.differ.submitList(venuesArrayList)
+        newsAdapter.differ.submitList(venueList)
         rvPlaces.apply {
             adapter = newsAdapter
             layoutManager = LinearLayoutManager(this@MainActivity)

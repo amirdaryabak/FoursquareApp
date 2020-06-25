@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.amirdaryabak.foursquareapp.MainApplication
 import com.amirdaryabak.foursquareapp.models.MainResponse
+import com.amirdaryabak.foursquareapp.models.Venue
 import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.util.Resource
 import kotlinx.coroutines.launch
@@ -24,9 +25,16 @@ class MainViewModel(
     val venues: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
     var venuesResponse: MainResponse? = null
 
-    fun getBreakingNews(latitudeAndLongitude: String) = viewModelScope.launch {
+    fun insertVenue(venue: Venue) = viewModelScope.launch {
+        mainRepository.insertVenue(venue)
+    }
+
+    fun getAllVenues() = mainRepository.getAllVenues()
+
+    fun getSafeVenuesByLatAndLng(latitudeAndLongitude: String) = viewModelScope.launch {
         getVenuesByLatAndLng(latitudeAndLongitude)
     }
+
 
     private suspend fun getVenuesByLatAndLng(latitudeAndLongitude: String) {
         venues.postValue(Resource.Loading())

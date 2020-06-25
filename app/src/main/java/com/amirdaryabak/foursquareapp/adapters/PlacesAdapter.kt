@@ -44,6 +44,7 @@ class PlacesAdapter : RecyclerView.Adapter<PlacesAdapter.ArticleViewHolder>() {
         val currentVenue = differ.currentList[position]
         holder.itemView.apply {
             place_name.text = currentVenue.name
+//            place_address.text = currentVenue.location.address
             setOnClickListener {
                 onItemClickListener?.let { it(currentVenue) }
             }

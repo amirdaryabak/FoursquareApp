@@ -12,19 +12,23 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.amirdaryabak.foursquareapp.R
 import com.google.android.gms.location.*
-import kotlinx.android.synthetic.main.activity_splash.*
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class SplashActivity : AppCompatActivity() {
 
     private val PERMISSION_ID = 42
     lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private val TAG = "SplashActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -43,11 +47,35 @@ class SplashActivity : AppCompatActivity() {
                     if (location == null) {
                         requestNewLocationData()
                     } else {
-                        location.latitude.toString()
-                        location.longitude.toString()
-                        val intent = Intent(this@SplashActivity,MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+                        val savedLatitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("latitude","0")
+                        val savedLongitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("longitude","0")
+                        Log.d(TAG, savedLatitude)
+                        Log.d(TAG, savedLongitude)
+                        Log.d(TAG, location.latitude.toString())
+                        Log.d(TAG, location.longitude.toString())
+                        if (savedLatitude != null && savedLatitude != "0" && savedLongitude != null && savedLongitude != "0"){
+                            if (getDistance(location.latitude,location.longitude, savedLatitude.toDouble(), savedLongitude.toDouble()) > 100) {
+                                saveLatitudeAndLongitude(location.latitude.toString(), location.longitude.toString())
+
+                                val intent = Intent(this@SplashActivity,MainActivity::class.java)
+                                intent.putExtra("needToRefresh", true)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                            } else {
+                                saveLatitudeAndLongitude(location.latitude.toString(), location.longitude.toString())
+
+                                val intent = Intent(this@SplashActivity,MainActivity::class.java)
+                                intent.putExtra("needToRefresh", false)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                            }
+                        } else {
+                            saveLatitudeAndLongitude(location.latitude.toString(), location.longitude.toString())
+                            val intent = Intent(this@SplashActivity,MainActivity::class.java)
+                            intent.putExtra("needToRefresh", true)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                        }
                     }
                 }
             } else {
@@ -78,12 +106,48 @@ class SplashActivity : AppCompatActivity() {
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             val mLastLocation: Location = locationResult.lastLocation
-            mLastLocation.latitude.toString()
-            mLastLocation.longitude.toString()
+            Log.d(TAG, mLastLocation.latitude.toString())
+            Log.d(TAG, mLastLocation.longitude.toString())
             val intent = Intent(this@SplashActivity,MainActivity::class.java)
+            intent.putExtra("needToRefresh", true)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
+    }
+
+    private fun saveLatitudeAndLongitude(latitude: String, longitude: String) {
+        val shared = getSharedPreferences("PREF", Context.MODE_PRIVATE)
+        val editor = shared.edit()
+        editor.putString("latitude", latitude)
+        editor.putString("longitude", longitude)
+        editor.apply()
+    }
+
+    private fun getDistance(
+        lat1: Double,
+        lon1: Double,
+        lat2: Double,
+        lon2: Double
+    ): Double {
+        val theta = lon1 - lon2
+        var dist = (sin(deg2rad(lat1))
+                * sin(deg2rad(lat2))
+                + (cos(deg2rad(lat1))
+                * cos(deg2rad(lat2))
+                * cos(deg2rad(theta))))
+        dist = acos(dist)
+        dist = rad2deg(dist)
+        dist *= 60 * 1.1515
+        Log.d("TAG","Distance in meter : ${(dist * 1000 * 1000)}")
+        return dist * 1000 * 1000
+    }
+
+    private fun deg2rad(deg: Double): Double {
+        return deg * Math.PI / 180.0
+    }
+
+    private fun rad2deg(rad: Double): Double {
+        return rad * 180.0 / Math.PI
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -152,4 +216,6 @@ class SplashActivity : AppCompatActivity() {
         intent.data = uri
         startActivityForResult(intent, 101)
     }
+
+
 }

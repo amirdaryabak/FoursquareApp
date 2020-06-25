@@ -30,6 +30,7 @@ class VenueDetailActivity : AppCompatActivity() {
 
 
         viewModel.getVenuesDetailById(intent.getStringExtra("id"))
+        Log.d(TAG, "Venues2 : ${intent.getStringExtra("id")}")
 
         viewModel.venue.observe(this, Observer { response ->
             when (response) {
@@ -37,7 +38,7 @@ class VenueDetailActivity : AppCompatActivity() {
 //                    loading.dismiss()
                     response.data?.let { response ->
                         Toasty.success(this, "Yeah").show()
-                        Log.d(TAG, "Venues2 : ${response.response.venue.id}")
+                        Log.d(TAG, "Venues2 : ${response.response.venue.canonicalUrl}")
 
 
 

@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.amirdaryabak.foursquareapp.MainApplication
 import com.amirdaryabak.foursquareapp.models.MainResponse
+import com.amirdaryabak.foursquareapp.models.Venue
 import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.util.Resource
 import kotlinx.coroutines.launch
