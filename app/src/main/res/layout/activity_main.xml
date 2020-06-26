@@ -19,7 +19,7 @@
         android:id="@+id/onFailure_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text='"For the first time you need to connect to internet"'
+        android:text="@string/noInternet"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

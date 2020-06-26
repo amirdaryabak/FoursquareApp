@@ -1,9 +1,9 @@
 package com.amirdaryabak.foursquareapp.ui
 
 import android.app.Dialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.amirdaryabak.foursquareapp.R
@@ -12,7 +12,6 @@ import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.ui.viewmodels.VenueDetailViewModel
 import com.amirdaryabak.foursquareapp.util.Resource
 import com.amirdaryabak.foursquareapp.util.showLoading
-import com.androiddevs.mvvmnewsapp.ui.MainViewModelProviderFactory
 import com.androiddevs.mvvmnewsapp.ui.VenueDetailProviderFactory
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_venue_detail.*

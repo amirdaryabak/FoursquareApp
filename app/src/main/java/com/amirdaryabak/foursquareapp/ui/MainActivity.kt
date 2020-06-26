@@ -1,12 +1,21 @@
 package com.amirdaryabak.foursquareapp.ui
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,8 +28,13 @@ import com.amirdaryabak.foursquareapp.ui.viewmodels.MainViewModel
 import com.amirdaryabak.foursquareapp.util.Resource
 import com.amirdaryabak.foursquareapp.util.showLoading
 import com.androiddevs.mvvmnewsapp.ui.MainViewModelProviderFactory
+import com.google.android.gms.location.*
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,42 +44,31 @@ class MainActivity : AppCompatActivity() {
     lateinit var newsAdapter: PlacesAdapter
     var venuesArrayList: MutableList<Venue> = ArrayList()
     lateinit var loading: Dialog
+    val PERMISSION_ID = 42
+    lateinit var mFusedLocationClient: FusedLocationProviderClient
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
 
     private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         loading = showLoading(this)
 
-        val mainRepository = MainRepository(PlacesDaoDataBase(this))
-        val viewModelProviderFactory = MainViewModelProviderFactory(application, mainRepository)
-        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(MainViewModel::class.java)
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        getLastLocation()
+        initViewModel()
+        initVenuesObserver()
 
-        val savedLatitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("latitude","0")
-        val savedLongitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("longitude","0")
+    }
 
-        if (intent.getBooleanExtra("needToRefresh", true)) {
-            viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
-        } else {
-            viewModel.getAllVenues().observe(this, Observer {
-                if (it.isNotEmpty()){
-                    setUpRecyclerView(it)
-                } else {
-                    viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
-                }
-            })
-        }
-
-
-
-        viewModel.venues.observe(this, Observer {response ->
+    private fun initVenuesObserver() {
+        viewModel.venues.observe(this, Observer { response ->
             when (response) {
                 is Resource.Success -> {
                     loading.dismiss()
                     response.data?.let { response ->
-                        Toasty.success(this, "Yeah").show()
                         Log.d(TAG, "TotalResult : ${response.response.totalResults}")
                         viewModel.deleteAllVenues()
                         for (i in response.response.groups) {
@@ -81,10 +84,10 @@ class MainActivity : AppCompatActivity() {
                 is Resource.Error -> {
                     loading.dismiss()
                     viewModel.getAllVenues().observe(this, Observer {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             setUpRecyclerView(it)
                         } else {
-                            Toasty.error(this, "For the first time you need to connect to internet").show()
+                            Toasty.error(this, getString(R.string.noInternet)).show()
                             onFailure_tv.visibility = View.VISIBLE
                         }
                     })
@@ -93,17 +96,22 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 is Resource.Loading -> {
-                    Toasty.normal(this, "Loading").show()
                     loading.show()
                 }
             }
         })
     }
 
+    private fun initViewModel() {
+        val mainRepository = MainRepository(PlacesDaoDataBase(this))
+        val viewModelProviderFactory = MainViewModelProviderFactory(application, mainRepository)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(MainViewModel::class.java)
+    }
+
     private fun setUpRecyclerView(venueList: List<Venue>) {
         newsAdapter = PlacesAdapter()
-        newsAdapter.setOnItemClickListener {item->
-            intent = Intent(this,VenueDetailActivity::class.java)
+        newsAdapter.setOnItemClickListener { item ->
+            intent = Intent(this, VenueDetailActivity::class.java)
             intent.putExtra("id", item.id)
             startActivity(intent)
         }
@@ -114,4 +122,146 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                mFusedLocationClient.lastLocation.addOnCompleteListener(this) {
+                    requestNewLocationData()
+                }
+            } else {
+                Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show()
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            }
+        } else {
+            requestPermissions()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData() {
+        val mLocationRequest = LocationRequest()
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.interval = 0
+        mLocationRequest.fastestInterval = 0
+        mLocationRequest.numUpdates = 1
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        mFusedLocationClient.requestLocationUpdates(
+            mLocationRequest, mLocationCallback,
+            Looper.myLooper()
+        )
+    }
+
+    private val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val mLastLocation: Location = locationResult.lastLocation
+            latitude = mLastLocation.latitude
+            longitude = mLastLocation.longitude
+            val savedLatitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("latitude","0")
+            val savedLongitude = getSharedPreferences("PREF", Context.MODE_PRIVATE).getString("longitude","0")
+            if (savedLatitude != null && savedLatitude != "0" && savedLongitude != null && savedLongitude != "0") {
+                if (getDistance(latitude, longitude, savedLatitude.toDouble(), savedLongitude.toDouble()) > 100) {
+                    saveLatitudeAndLongitude(latitude.toString(), longitude.toString())
+                    viewModel.getSafeVenuesByLatAndLng("$latitude,$longitude")
+                } else {
+                    viewModel.getAllVenues().observe(this@MainActivity, Observer {
+                        if (it.isNotEmpty()){
+                            setUpRecyclerView(it)
+                        } else {
+                            viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
+                        }
+                    })
+                }
+            } else {
+                saveLatitudeAndLongitude(latitude.toString(), longitude.toString())
+                viewModel.getAllVenues().observe(this@MainActivity, Observer {
+                    if (it.isNotEmpty()){
+                        setUpRecyclerView(it)
+                    } else {
+                        viewModel.getSafeVenuesByLatAndLng("$latitude,$longitude")
+                    }
+                })
+            }
+
+        }
+    }
+
+    private fun saveLatitudeAndLongitude(latitude: String, longitude: String) {
+        val shared = getSharedPreferences("PREF", Context.MODE_PRIVATE)
+        val editor = shared.edit()
+        editor.putString("latitude", latitude)
+        editor.putString("longitude", longitude)
+        editor.apply()
+    }
+
+    private fun getDistance(
+        lat1: Double,
+        lon1: Double,
+        lat2: Double,
+        lon2: Double
+    ): Double {
+        val radiusOfEarth = 6371
+
+        val latDistance = Math.toRadians(lat2 - lat1)
+        val lonDistance = Math.toRadians(lon2 - lon1)
+        val a = sin(latDistance / 2) * sin(latDistance / 2) + (Math.cos(
+            Math.toRadians(lat1)
+        ) * cos(Math.toRadians(lat2))
+                * sin(lonDistance / 2) * sin(lonDistance / 2))
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        var distance = radiusOfEarth.toDouble() * c * 1000.0
+
+        distance = Math.pow(distance, 2.0)
+        Log.d(TAG, "Ditance: ${sqrt(distance).toInt()}")
+        return sqrt(distance)
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    private fun checkPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            PERMISSION_ID
+        )
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSION_ID) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                getLastLocation()
+            }
+        }
+    }
 }
