@@ -3,4 +3,5 @@
 
     <string name="loading">Please wait</string>
     <string name="noInternet">For the first time you need to connect to internet or turn off VPN</string>
+    <string name="noInternetConnection">Need Internet connection or turn off VPN</string>
 </resources>

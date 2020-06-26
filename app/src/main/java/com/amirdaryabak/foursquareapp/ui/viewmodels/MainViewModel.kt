@@ -23,23 +23,13 @@ class MainViewModel(
 ) : AndroidViewModel(app) {
 
     val venues: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
-    var venuesResponse: MainResponse? = null
 
     // api
-    fun getSafeVenuesByLatAndLng(latitudeAndLongitude: String) = viewModelScope.launch {
-        getVenuesByLatAndLng(latitudeAndLongitude)
-    }
-
-    private suspend fun getVenuesByLatAndLng(latitudeAndLongitude: String) {
-        venues.postValue(Resource.Loading())
+    fun getVenuesByLatAndLng(latitudeAndLongitude: String) = viewModelScope.launch {
         try {
-            if (hasInternetConnection()) {
-                val response = mainRepository.getVenuesByLatAndLng(latitudeAndLongitude)
-                venues.postValue(handleVenuesByLatAndLngResponse(response))
-            } else {
-                venues.postValue((Resource.Error("Not internet connection")))
-            }
-
+            venues.postValue(Resource.Loading())
+            val response = mainRepository.getVenuesByLatAndLng(latitudeAndLongitude)
+            venues.postValue(handleVenuesByLatAndLngResponse(response))
         } catch (t: Throwable) {
             when(t) {
                 is IOException -> venues.postValue((Resource.Error("Network Failure")))
@@ -48,11 +38,10 @@ class MainViewModel(
         }
     }
 
-    private fun handleVenuesByLatAndLngResponse(response: Response<MainResponse>) : Resource<MainResponse> {
+    private fun handleVenuesByLatAndLngResponse(response: Response<MainResponse>): Resource<MainResponse> {
         if (response.isSuccessful) {
             response.body()?.let {resultResponse ->
-                venuesResponse = resultResponse
-                return Resource.Success(venuesResponse ?: resultResponse)
+                return Resource.Success(resultResponse)
             }
         }
         return Resource.Error(response.message())
@@ -69,29 +58,5 @@ class MainViewModel(
         mainRepository.deleteAllVenues()
     }
 
-    private fun hasInternetConnection(): Boolean {
-        val connectivityManager = getApplication<MainApplication>().getSystemService(
-            Context.CONNECTIVITY_SERVICE
-        ) as ConnectivityManager
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            val activeNetwork = connectivityManager.activeNetwork ?: return false
-            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-            return when {
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.activeNetworkInfo?.run {
-                return when(type) {
-                    ConnectivityManager.TYPE_WIFI -> true
-                    ConnectivityManager.TYPE_ETHERNET -> true
-                    ConnectivityManager.TYPE_MOBILE -> true
-                    else -> false
-                }
-            }
-        }
-        return false
-    }
+
 }

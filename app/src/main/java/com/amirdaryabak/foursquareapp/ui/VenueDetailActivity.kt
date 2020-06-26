@@ -35,7 +35,6 @@ class VenueDetailActivity : AppCompatActivity() {
 
 
         viewModel.getVenuesDetailById(intent.getStringExtra("id"))
-        Log.d(TAG, "Venues2 : ${intent.getStringExtra("id")}")
 
         viewModel.venue.observe(this, Observer { response ->
             when (response) {
@@ -43,8 +42,6 @@ class VenueDetailActivity : AppCompatActivity() {
                     loading.dismiss()
                     response.data?.let { response ->
                         Toasty.success(this, "Yeah").show()
-                        Log.d(TAG, "Venues2 : ${response.response.venue.canonicalUrl}")
-                        Log.d(TAG, "Venues22 : ${response.response.venue.contact.contact}")
 
                         place_name.text = response.response.venue.name
                         place_address.text = response.response.venue.location.address ?: "(empty)"
@@ -55,7 +52,7 @@ class VenueDetailActivity : AppCompatActivity() {
                 }
                 is Resource.Error -> {
                     loading.dismiss()
-                    Toasty.error(this, "Need Internet connection").show()
+                    Toasty.error(this, getString(R.string.noInternetConnection)).show()
                     response.message?.let { message ->
                         Log.e(TAG, "Error : $message")
                     }

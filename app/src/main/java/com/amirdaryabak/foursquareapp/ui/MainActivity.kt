@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity() {
                 is Resource.Success -> {
                     loading.dismiss()
                     response.data?.let { response ->
-                        Log.d(TAG, "TotalResult : ${response.response.totalResults}")
                         viewModel.deleteAllVenues()
                         for (i in response.response.groups) {
                             for (j in i.items) {
@@ -164,13 +163,13 @@ class MainActivity : AppCompatActivity() {
             if (savedLatitude != null && savedLatitude != "0" && savedLongitude != null && savedLongitude != "0") {
                 if (getDistance(latitude, longitude, savedLatitude.toDouble(), savedLongitude.toDouble()) > 100) {
                     saveLatitudeAndLongitude(latitude.toString(), longitude.toString())
-                    viewModel.getSafeVenuesByLatAndLng("$latitude,$longitude")
+                    viewModel.getVenuesByLatAndLng("$latitude,$longitude")
                 } else {
                     viewModel.getAllVenues().observe(this@MainActivity, Observer {
                         if (it.isNotEmpty()){
                             setUpRecyclerView(it)
                         } else {
-                            viewModel.getSafeVenuesByLatAndLng("$savedLatitude,$savedLongitude")
+                            viewModel.getVenuesByLatAndLng("$savedLatitude,$savedLongitude")
                         }
                     })
                 }
@@ -180,7 +179,7 @@ class MainActivity : AppCompatActivity() {
                     if (it.isNotEmpty()){
                         setUpRecyclerView(it)
                     } else {
-                        viewModel.getSafeVenuesByLatAndLng("$latitude,$longitude")
+                        viewModel.getVenuesByLatAndLng("$latitude,$longitude")
                     }
                 })
             }
