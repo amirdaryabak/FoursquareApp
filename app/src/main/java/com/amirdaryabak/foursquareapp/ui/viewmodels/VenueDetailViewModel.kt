@@ -23,23 +23,13 @@ class VenueDetailViewModel(
 ) : AndroidViewModel(app) {
 
     val venue: MutableLiveData<Resource<MainResponse>> = MutableLiveData()
-    var venuesResponse: MainResponse? = null
 
     // api
     fun getVenuesDetailById(venueID: String) = viewModelScope.launch {
-        getSafeVenuesDetail(venueID)
-    }
-
-    private suspend fun getSafeVenuesDetail(venueID: String) {
-        venue.postValue(Resource.Loading())
         try {
-            if (hasInternetConnection()) {
-                val response = mainRepository.getVenuesDetailById(venueID)
-                venue.postValue(handleVenuesDetailByIdResponse(response))
-            } else {
-                venue.postValue((Resource.Error("Not internet connection")))
-            }
-
+            venue.postValue(Resource.Loading())
+            val response = mainRepository.getVenuesDetailById(venueID)
+            venue.postValue(handleVenuesDetailByIdResponse(response))
         } catch (t: Throwable) {
             when(t) {
                 is IOException -> venue.postValue((Resource.Error("Network Failure")))
@@ -51,36 +41,9 @@ class VenueDetailViewModel(
     private fun handleVenuesDetailByIdResponse(response: Response<MainResponse>) : Resource<MainResponse> {
         if (response.isSuccessful) {
             response.body()?.let {resultResponse ->
-                venuesResponse = resultResponse
-                return Resource.Success(venuesResponse ?: resultResponse)
+                return Resource.Success(resultResponse)
             }
         }
         return Resource.Error(response.message())
-    }
-
-    private fun hasInternetConnection(): Boolean {
-        val connectivityManager = getApplication<MainApplication>().getSystemService(
-            Context.CONNECTIVITY_SERVICE
-        ) as ConnectivityManager
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            val activeNetwork = connectivityManager.activeNetwork ?: return false
-            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-            return when {
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.activeNetworkInfo?.run {
-                return when(type) {
-                    ConnectivityManager.TYPE_WIFI -> true
-                    ConnectivityManager.TYPE_ETHERNET -> true
-                    ConnectivityManager.TYPE_MOBILE -> true
-                    else -> false
-                }
-            }
-        }
-        return false
     }
 }

@@ -21,7 +21,6 @@ class VenueDetailActivity : AppCompatActivity() {
     lateinit var viewModel: VenueDetailViewModel
     lateinit var loading: Dialog
 
-    private val TAG = "VenueDetailActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,36 +32,34 @@ class VenueDetailActivity : AppCompatActivity() {
         val viewModelProviderFactory = VenueDetailProviderFactory(application, mainRepository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(VenueDetailViewModel::class.java)
 
-
         viewModel.getVenuesDetailById(intent.getStringExtra("id"))
 
         viewModel.venue.observe(this, Observer { response ->
             when (response) {
                 is Resource.Success -> {
                     loading.dismiss()
-                    response.data?.let { response ->
-                        Toasty.success(this, "Yeah").show()
-
-                        place_name.text = response.response.venue.name
-                        place_address.text = response.response.venue.location.address ?: "(empty)"
-                        place_contact.text = response.response.venue.contact.contact ?: "(empty)"
-                        place_instagram.text = response.response.venue.contact.instagram ?: "(empty)"
+                    response.data?.let { result ->
+                        place_name.text = result.response.venue.name
+                        place_address.text = result.response.venue.location.address ?: "(empty)"
+                        place_contact.text = result.response.venue.contact.contact ?: "(empty)"
+                        place_instagram.text = result.response.venue.contact.instagram ?: "(empty)"
 
                     }
                 }
                 is Resource.Error -> {
                     loading.dismiss()
                     Toasty.error(this, getString(R.string.noInternetConnection)).show()
-                    response.message?.let { message ->
-                        Log.e(TAG, "Error : $message")
-                    }
                 }
                 is Resource.Loading -> {
-                    Toasty.normal(this, "Loading").show()
                     loading.show()
                 }
             }
         })
 
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 }

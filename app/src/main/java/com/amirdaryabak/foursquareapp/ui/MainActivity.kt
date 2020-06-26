@@ -14,6 +14,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import android.widget.Toast.makeText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
@@ -49,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 
-    private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,18 +63,22 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
+    }
+
     private fun initVenuesObserver() {
         viewModel.venues.observe(this, Observer { response ->
             when (response) {
                 is Resource.Success -> {
                     loading.dismiss()
-                    response.data?.let { response ->
+                    response.data?.let { result ->
                         viewModel.deleteAllVenues()
-                        for (i in response.response.groups) {
+                        for (i in result.response.groups) {
                             for (j in i.items) {
                                 venuesArrayList.add(j.venue)
                                 viewModel.insertVenue(j.venue)
-                                Log.d(TAG, "Venues : ${j.venue.id}")
                             }
                         }
                         setUpRecyclerView(venuesArrayList)
@@ -90,9 +94,6 @@ class MainActivity : AppCompatActivity() {
                             onFailure_tv.visibility = View.VISIBLE
                         }
                     })
-                    response.message?.let { message ->
-                        Log.e(TAG, "Error : $message")
-                    }
                 }
                 is Resource.Loading -> {
                     loading.show()
@@ -113,6 +114,7 @@ class MainActivity : AppCompatActivity() {
             intent = Intent(this, VenueDetailActivity::class.java)
             intent.putExtra("id", item.id)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         newsAdapter.differ.submitList(venueList)
         rvPlaces.apply {
@@ -129,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                     requestNewLocationData()
                 }
             } else {
-                Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show()
+                Toasty.error(this, "Turn on location", Toast.LENGTH_LONG).show()
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivity(intent)
             }
@@ -213,7 +215,6 @@ class MainActivity : AppCompatActivity() {
         var distance = radiusOfEarth.toDouble() * c * 1000.0
 
         distance = Math.pow(distance, 2.0)
-        Log.d(TAG, "Ditance: ${sqrt(distance).toInt()}")
         return sqrt(distance)
     }
 
