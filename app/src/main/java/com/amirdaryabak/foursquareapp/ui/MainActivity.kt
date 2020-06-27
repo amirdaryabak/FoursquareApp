@@ -4,17 +4,18 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.widget.Toast
-import android.widget.Toast.makeText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
@@ -261,7 +262,36 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PERMISSION_ID) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 getLastLocation()
+            } else {
+                showSettingsDialog()
             }
         }
+    }
+
+    private fun showSettingsDialog() {
+        val builder =
+            AlertDialog.Builder(this)
+        builder.setTitle("Permission")
+        builder.setMessage("You need to give location permission to enter app")
+        builder.setPositiveButton(
+            "Go to setting"
+        ) { dialog: DialogInterface, which: Int ->
+            dialog.cancel()
+            openSettings()
+        }
+        builder.setNegativeButton(
+            "Deny"
+        ) { dialog: DialogInterface, which: Int ->
+            dialog.cancel()
+            finish()
+        }
+        builder.show()
+    }
+
+    private fun openSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        startActivityForResult(intent, 101)
     }
 }

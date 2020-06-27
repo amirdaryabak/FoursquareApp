@@ -12,7 +12,7 @@ interface PlacesApi {
 
     @GET("venues/explore")
     suspend fun getVenuesByLatAndLng(
-        @Query("ll") ll: String = "35.6002487,51.4189481",
+        @Query("ll") ll: String,
         @Query("client_id") client_id: String = CLIENT_ID,
         @Query("client_secret") client_secret: String = CLIENT_SECRET,
         @Query("v") v: String = "20200909"
@@ -20,7 +20,7 @@ interface PlacesApi {
 
     @GET("venues/{VENUE_ID}")
     suspend fun getVenuesDetailById(
-        @Path("VENUE_ID") venueID: String = "49eeaf08f964a52078681fe3",
+        @Path("VENUE_ID") venueID: String,
         @Query("client_id") client_id: String = CLIENT_ID,
         @Query("client_secret") client_secret: String = CLIENT_SECRET,
         @Query("v") v: String = "20200909"

@@ -2,7 +2,6 @@ package com.amirdaryabak.foursquareapp.ui
 
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -41,8 +40,8 @@ class VenueDetailActivity : AppCompatActivity() {
                     response.data?.let { result ->
                         place_name.text = result.response.venue.name
                         place_address.text = result.response.venue.location.address ?: "(empty)"
-                        place_contact.text = result.response.venue.contact.contact ?: "(empty)"
-                        place_instagram.text = result.response.venue.contact.instagram ?: "(empty)"
+                        place_contact.text = result.response.venue.contact.phone ?: "(empty)"
+                        place_twitter.text = result.response.venue.contact.twitter ?: "(empty)"
 
                     }
                 }

@@ -1,16 +1,10 @@
 package com.amirdaryabak.foursquareapp.ui.viewmodels
 
 import android.app.Application
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.amirdaryabak.foursquareapp.MainApplication
 import com.amirdaryabak.foursquareapp.models.MainResponse
-import com.amirdaryabak.foursquareapp.models.Venue
 import com.amirdaryabak.foursquareapp.repository.MainRepository
 import com.amirdaryabak.foursquareapp.util.Resource
 import kotlinx.coroutines.launch
