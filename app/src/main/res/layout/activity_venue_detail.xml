@@ -47,7 +47,7 @@
             android:layout_marginTop="8dp"
             android:text="Name:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@+id/dummy_name"
             app:layout_constraintStart_toEndOf="@+id/dummy_name"
             app:layout_constraintTop_toTopOf="@+id/dummy_name"
@@ -69,7 +69,7 @@
             android:layout_marginTop="16dp"
             android:text="Address:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintStart_toStartOf="@+id/dummy_name"
             app:layout_constraintTop_toBottomOf="@+id/dummy_name" />
 
@@ -78,7 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@+id/dummy_address"
             app:layout_constraintStart_toEndOf="@+id/dummy_address"
             app:layout_constraintTop_toTopOf="@+id/dummy_address"
@@ -91,7 +91,7 @@
             android:layout_marginTop="16dp"
             android:text="Contact:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintStart_toStartOf="@+id/dummy_address"
             app:layout_constraintTop_toBottomOf="@+id/dummy_address" />
 
@@ -100,7 +100,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@+id/dummy_contact"
             app:layout_constraintStart_toEndOf="@+id/dummy_contact"
             app:layout_constraintTop_toTopOf="@+id/dummy_contact"
@@ -113,7 +113,7 @@
             android:layout_marginTop="16dp"
             android:text="Twitter:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintStart_toStartOf="@+id/dummy_contact"
             app:layout_constraintTop_toBottomOf="@+id/dummy_contact" />
 
@@ -122,7 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@+id/dummy_twitter"
             app:layout_constraintStart_toEndOf="@+id/dummy_twitter"
             app:layout_constraintTop_toTopOf="@+id/dummy_twitter"
